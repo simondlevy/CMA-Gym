@@ -27,12 +27,12 @@ def get_logger():
 
 class Task:
     
-    def __init__(self, envname, hidden_size, max_steps, target, pop_size):
+    def __init__(self, envname, hidden_size, max_steps, target, pop_size, repetitions, test_repetitions):
 
         self.task = envname
         self.env_fn = lambda: gym.make(self.task)
-        self.repetitions = 10
-        self.test_repetitions = 10
+        self.repetitions = repetitions
+        self.test_repetitions = test_repetitions
         env = self.env_fn()
         self.action_dim = env.action_space.shape[0]
         self.state_dim = env.observation_space.shape[0]
@@ -346,9 +346,11 @@ def main():
     parser.add_argument('--rgoal', help='reward goal', type=float, default=250)
     parser.add_argument('--max-steps', help='maximum number of steps', type=int, default=int(2e7))
     parser.add_argument('--pop-size', help='population size', type=int, default=64)
+    parser.add_argument('--reps', help='repetitions', type=int, default=10)
+    parser.add_argument('--test-reps', help='test repetitions', type=int, default=10)
     args = parser.parse_args()
 
-    task = Task(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size)
+    task = Task(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size, args.reps, args.test_reps)
 
     logger = get_logger()
 
