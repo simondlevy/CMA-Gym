@@ -6,12 +6,13 @@ import pickle
 import sys
 import time
 import logging
+import cma
+import argparse
 
 from common import SharedStats, StaticNormalizer, fitness_shift, Worker, get_logger, ContinuousLunarLanderTask
 
 from torchmodel import StandardFCNet
 
-import cma
 
 class Evaluator:
 
@@ -172,9 +173,12 @@ def multi_runs(task, logger, runs=1):
 
 def main():
 
-    hidden_size = 16
-    max_steps = 2e7
-    task = ContinuousLunarLanderTaskCMA(hidden_size, max_steps)
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--nhid', help='# of hidden units', type=int, default=64)
+    parser.add_argument('--max-steps', help='maximum number of steps', type=int, default=int(2e7))
+    return parser.parse_args()
+
+    task = ContinuousLunarLanderTaskCMA(args.nhid, args.max_steps)
 
     logger = get_logger()
 
