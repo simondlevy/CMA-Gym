@@ -40,7 +40,7 @@ class BasicTask:
 
 class ContinuousTask(BasicTask):
 
-    def __init__(self, envname, max_steps, target, pop_size=64):
+    def __init__(self, envname, max_steps, target, pop_size):
 
         BasicTask.__init__(self, envname)
 
@@ -54,9 +54,9 @@ class ContinuousTask(BasicTask):
 
 class ContinuousTaskCMA(ContinuousTask):
     
-    def __init__(self, envname, hidden_size, max_steps, target):
+    def __init__(self, envname, hidden_size, max_steps, target, pop_size):
 
-        ContinuousTask.__init__(self, envname, max_steps, target)
+        ContinuousTask.__init__(self, envname, max_steps, target, pop_size)
 
         self.hidden_size = hidden_size
         self.model_fn = lambda: StandardFCNet(self.state_dim, self.action_dim, self.hidden_size)
@@ -357,9 +357,10 @@ def main():
     parser.add_argument('--nhid', help='# of hidden units', type=int, default=64)
     parser.add_argument('--rgoal', help='reward goal', type=float, default=250)
     parser.add_argument('--max-steps', help='maximum number of steps', type=int, default=int(2e7))
+    parser.add_argument('--pop-size', help='population size', type=int, default=64)
     args = parser.parse_args()
 
-    task = ContinuousTaskCMA(args.env, args.nhid, args.max_steps, args.rgoal)
+    task = ContinuousTaskCMA(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size)
 
     logger = get_logger()
 
