@@ -38,6 +38,35 @@ class BasicTask:
         self.state_dim = env.observation_space.shape[0]
         self.reward_to_fitness = lambda r: r
 
+class ContinuousTask(BasicTask):
+
+    def __init__(self, envname, target=250, max_steps=int(4e7), pop_size=64):
+
+        BasicTask.__init__(self, envname)
+
+        self.max_steps = max_steps
+        self.pop_size = pop_size
+
+        self.num_workers = mp.cpu_count()
+
+        self.action_clip = lambda a: np.clip(a, -1, 1)
+        self.target = target
+
+class ContinuousTaskCMA(ContinuousTask):
+    
+    def __init__(self, envname, hidden_size=16, max_steps=int(1e7)):
+
+        ContinuousTask.__init__(self, envname, max_steps=max_steps)
+
+        self.hidden_size = hidden_size
+        self.model_fn = lambda: StandardFCNet(self.state_dim, self.action_dim, self.hidden_size)
+        model = self.model_fn()
+        self.initial_weight = model.get_weight()
+        self.weight_decay = 0.005
+        self.action_noise_std = 0
+        self.sigma = 1
+        self.tag = 'CMA-%d' % (hidden_size)
+
 class BaseModel:
     def get_weight(self):
         weight = []
@@ -178,19 +207,6 @@ class Worker(mp.Process):
             id, solution = self.task_q.get()
             fitness, steps = self.evalfun(solution)
             self.result_q.put([id, fitness, steps])
-class ContinuousLunarLanderTask(BasicTask):
-
-    def __init__(self, target=250, max_steps=int(4e7), pop_size=64):
-
-        BasicTask.__init__(self, 'LunarLanderContinuous-v2')
-
-        self.max_steps = max_steps
-        self.pop_size = pop_size
-
-        self.num_workers = mp.cpu_count()
-
-        self.action_clip = lambda a: np.clip(a, -1, 1)
-        self.target = target
 
 class Evaluator:
 
@@ -225,21 +241,6 @@ class Evaluator:
             total_reward += reward
             if done:
                 return total_reward, steps
-
-class ContinuousLunarLanderTaskCMA(ContinuousLunarLanderTask):
-    
-    def __init__(self, hidden_size=16, max_steps=int(1e7)):
-
-        ContinuousLunarLanderTask.__init__(self, max_steps=max_steps)
-
-        self.hidden_size = hidden_size
-        self.model_fn = lambda: StandardFCNet(self.state_dim, self.action_dim, self.hidden_size)
-        model = self.model_fn()
-        self.initial_weight = model.get_weight()
-        self.weight_decay = 0.005
-        self.action_noise_std = 0
-        self.sigma = 1
-        self.tag = 'CMA-%d' % (hidden_size)
 
 
 class CMAWorker(Worker):
@@ -352,11 +353,12 @@ def multi_runs(task, logger, runs=1):
 def main():
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--env', help='environment ID', type=str, default='Pendulum-v0')
     parser.add_argument('--nhid', help='# of hidden units', type=int, default=64)
     parser.add_argument('--max-steps', help='maximum number of steps', type=int, default=int(2e7))
     args = parser.parse_args()
 
-    task = ContinuousLunarLanderTaskCMA(args.nhid, args.max_steps)
+    task = ContinuousTaskCMA(args.env, args.nhid, args.max_steps)
 
     logger = get_logger()
 
