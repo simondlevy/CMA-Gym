@@ -25,9 +25,9 @@ def get_logger():
     logger.setLevel(logging.DEBUG)
     return logger
 
-class BasicTask:
-
-    def __init__(self, envname):
+class Task:
+    
+    def __init__(self, envname, hidden_size, max_steps, target, pop_size):
 
         self.task = envname
         self.env_fn = lambda: gym.make(self.task)
@@ -38,12 +38,6 @@ class BasicTask:
         self.state_dim = env.observation_space.shape[0]
         self.reward_to_fitness = lambda r: r
 
-class ContinuousTask(BasicTask):
-
-    def __init__(self, envname, max_steps, target, pop_size):
-
-        BasicTask.__init__(self, envname)
-
         self.max_steps = max_steps
         self.pop_size = pop_size
 
@@ -51,12 +45,6 @@ class ContinuousTask(BasicTask):
 
         self.action_clip = lambda a: np.clip(a, -1, 1)
         self.target = target
-
-class ContinuousTaskCMA(ContinuousTask):
-    
-    def __init__(self, envname, hidden_size, max_steps, target, pop_size):
-
-        ContinuousTask.__init__(self, envname, max_steps, target, pop_size)
 
         self.hidden_size = hidden_size
         self.model_fn = lambda: StandardFCNet(self.state_dim, self.action_dim, self.hidden_size)
@@ -360,7 +348,7 @@ def main():
     parser.add_argument('--pop-size', help='population size', type=int, default=64)
     args = parser.parse_args()
 
-    task = ContinuousTaskCMA(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size)
+    task = Task(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size)
 
     logger = get_logger()
 
