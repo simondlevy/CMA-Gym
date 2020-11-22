@@ -40,7 +40,7 @@ class BasicTask:
 
 class ContinuousTask(BasicTask):
 
-    def __init__(self, envname, target=250, max_steps=int(4e7), pop_size=64):
+    def __init__(self, envname, max_steps, target, pop_size=64):
 
         BasicTask.__init__(self, envname)
 
@@ -54,9 +54,9 @@ class ContinuousTask(BasicTask):
 
 class ContinuousTaskCMA(ContinuousTask):
     
-    def __init__(self, envname, hidden_size, max_steps):
+    def __init__(self, envname, hidden_size, max_steps, target):
 
-        ContinuousTask.__init__(self, envname, max_steps=max_steps)
+        ContinuousTask.__init__(self, envname, max_steps, target)
 
         self.hidden_size = hidden_size
         self.model_fn = lambda: StandardFCNet(self.state_dim, self.action_dim, self.hidden_size)
@@ -359,7 +359,7 @@ def main():
     parser.add_argument('--max-steps', help='maximum number of steps', type=int, default=int(2e7))
     args = parser.parse_args()
 
-    task = ContinuousTaskCMA(args.env, args.nhid, args.max_steps)
+    task = ContinuousTaskCMA(args.env, args.nhid, args.max_steps, args.rgoal)
 
     logger = get_logger()
 
