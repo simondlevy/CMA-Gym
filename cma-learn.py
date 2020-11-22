@@ -27,12 +27,12 @@ def get_logger():
 
 class Task:
     
-    def __init__(self, envname, hidden_size, max_steps, target, pop_size, repetitions, test_repetitions):
+    def __init__(self, envname, hidden_size, max_steps, target, pop_size, reps, test_reps, weight_decay, noise_std, sigma):
 
         self.task = envname
         self.env_fn = lambda: gym.make(self.task)
-        self.repetitions = repetitions
-        self.test_repetitions = test_repetitions
+        self.repetitions = reps
+        self.test_repetitions = test_reps
         env = self.env_fn()
         self.action_dim = env.action_space.shape[0]
         self.state_dim = env.observation_space.shape[0]
@@ -50,9 +50,9 @@ class Task:
         self.model_fn = lambda: StandardFCNet(self.state_dim, self.action_dim, self.hidden_size)
         model = self.model_fn()
         self.initial_weight = model.get_weight()
-        self.weight_decay = 0.005
-        self.action_noise_std = 0
-        self.sigma = 1
+        self.weight_decay = weight_decay
+        self.action_noise_std = noise_std
+        self.sigma = sigma
         self.tag = 'CMA-%d' % (hidden_size)
 
 class BaseModel:
@@ -348,9 +348,14 @@ def main():
     parser.add_argument('--pop-size', help='population size', type=int, default=64)
     parser.add_argument('--reps', help='repetitions', type=int, default=10)
     parser.add_argument('--test-reps', help='test repetitions', type=int, default=10)
+    parser.add_argument('--weight-decay', help='weight decay', type=float, default=0.005)
+    parser.add_argument('--noise-std', help='noise standard deviation', type=float, default=0)
+    parser.add_argument('--sigma', help='sigma', type=float, default=1)
+
     args = parser.parse_args()
 
-    task = Task(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size, args.reps, args.test_reps)
+    task = Task(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size, args.reps, args.test_reps, 
+            args.weight_decay, args.noise_std, args.sigma)
 
     logger = get_logger()
 
