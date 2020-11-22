@@ -54,7 +54,7 @@ class ContinuousTask(BasicTask):
 
 class ContinuousTaskCMA(ContinuousTask):
     
-    def __init__(self, envname, hidden_size=16, max_steps=int(1e7)):
+    def __init__(self, envname, hidden_size, max_steps):
 
         ContinuousTask.__init__(self, envname, max_steps=max_steps)
 
@@ -353,8 +353,9 @@ def multi_runs(task, logger, runs=1):
 def main():
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--env', help='environment ID', type=str, default='Pendulum-v0')
+    parser.add_argument('--env', help='environment ID', type=str, default='LunarLanderContinuous-v2')
     parser.add_argument('--nhid', help='# of hidden units', type=int, default=64)
+    parser.add_argument('--rgoal', help='reward goal', type=float, default=250)
     parser.add_argument('--max-steps', help='maximum number of steps', type=int, default=int(2e7))
     args = parser.parse_args()
 
