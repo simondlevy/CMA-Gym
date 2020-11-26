@@ -343,7 +343,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--env', help='environment ID', type=str, default='LunarLanderContinuous-v2')
     parser.add_argument('--nhid', help='# of hidden units', type=int, default=64)
-    parser.add_argument('--rgoal', help='reward goal', type=float, default=250)
+    parser.add_argument('--target', help='reward goal', type=float, default=250)
     parser.add_argument('--max-steps', help='maximum number of steps', type=int, default=int(2e7))
     parser.add_argument('--pop-size', help='population size', type=int, default=64)
     parser.add_argument('--reps', help='repetitions', type=int, default=10)
@@ -354,7 +354,7 @@ def main():
 
     args = parser.parse_args()
 
-    task = Task(args.env, args.nhid, args.max_steps, args.rgoal, args.pop_size, args.reps, args.test_reps, 
+    task = Task(args.env, args.nhid, args.max_steps, args.target, args.pop_size, args.reps, args.test_reps, 
             args.weight_decay, args.noise_std, args.sigma)
 
     logger = get_logger()
